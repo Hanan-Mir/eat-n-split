@@ -38,7 +38,7 @@ export default function App(){
   {addFriendIsOpen&&<FormAddFriend friendList={friendList} onSetFriendList={setFriendList} onSetAddFriendIsOpen={handleFriendForm} />}
   <Button onClick={handleFriendForm}>{addFriendIsOpen?'close':'Add Friend'}</Button>
   </div>
-  {showBillForm && <FormAddBill selectedFriend={selectedFriend} splitBill={splitBill} />}
+  {showBillForm && <FormAddBill selectedFriend={selectedFriend} splitBill={splitBill} setShowBillForm={setShowBillForm} setSelectedFriend={setSelectedFriend} />}
   </div>
 }
 function FriendList({friends,onSetShowForm,showBillForm,selectedFriend,onSetSelectedFriend}){
@@ -53,11 +53,12 @@ function Friend({friend,onSetShowForm,selectedFriend,onSetSelectedFriend,showBil
     {friend.balance>0 && <p className="green">{friend.name} ows you ${friend.balance}</p>}
     {friend.balance===0 && <p>You and {friend.name} shared evenly</p>}
     <Button onClick={()=>{onSetShowForm((formStatus)=> !formStatus);
-      onSetSelectedFriend(friend);
-      
+     onSetSelectedFriend(friend);
+     showBillForm &&friend.id!==selectedFriend.id && onSetShowForm((formStatus)=>!formStatus);
+      showBillForm && friend.id===selectedFriend.id && onSetSelectedFriend('');
       // handleShowForm(friend);
      
-    }}>{!isOpenForm &&friend.id!==selectedFriend.id ?'Select':'Close'}</Button>
+    }}>{!isOpenForm ?'Select':'Close'}</Button>
   </li>
 }
 function Button({children,onClick}){
@@ -91,7 +92,7 @@ function FormAddFriend({friendList,onSetFriendList,onSetAddFriendIsOpen}){
 
   </form>
 }
-function FormAddBill({selectedFriend,splitBill}){
+function FormAddBill({selectedFriend,splitBill,setShowBillForm,setSelectedFriend}){
   const [amount,setAmount]=useState('');
   const [expense,setExpense]=useState('');
   const share=Number(amount-expense);
@@ -101,6 +102,10 @@ function FormAddBill({selectedFriend,splitBill}){
     // setShare(amount-expense);
     if(!amount || !expense) return;
 splitBill(billPayedBy==='user' ? -Number(expense) :Number(share));
+setAmount('')
+setExpense('')
+setShowBillForm(cur=>!cur)
+setSelectedFriend('')
   }
   return <form className="form-split-bill" onSubmit={hanldeOnSubmitForm}>
  <h2>Split a bill with {selectedFriend?.name}</h2>
